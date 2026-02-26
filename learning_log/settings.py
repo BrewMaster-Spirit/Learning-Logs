@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -131,6 +132,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 我的设置
 LOGIN_URL = 'users:login'
 
-# Heroku设置
-import django_heroku
-django_heroku.settings(locals())
+# Render设置
+import dj_database_url
+import os
+
+# 允许 Render 的域名
+ALLOWED_HOSTS = ['*']
+
+# 静态文件
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# 数据库
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
