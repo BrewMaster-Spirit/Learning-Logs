@@ -18,4 +18,6 @@ urlpatterns = [
     path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
     # 用于编辑条目的页面。
     path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
+    # AI分析页面
+    path('ai_analysis/', views.ai_analysis, name='ai_analysis'),
 ]

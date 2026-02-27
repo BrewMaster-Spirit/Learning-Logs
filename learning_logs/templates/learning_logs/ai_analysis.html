@@ -1,0 +1,29 @@
+{% extends "learning_logs/base.html" %}
+{% load bootstrap4 %}
+
+{% block page_header %}
+  <h2>AI 笔记分析</h2>
+{% endblock page_header %}
+
+{% block content %}
+  <p>点击下方按钮，AI 将分析你的所有笔记，总结要点、发现知识关联并生成复习题。</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-primary" type="submit">开始分析</button>
+  </form>
+
+  {% if error %}
+    <div class="alert alert-danger mt-4">{{ error }}</div>
+  {% endif %}
+
+  {% if analysis %}
+    <div class="card mt-4">
+      <div class="card-header"><strong>AI 分析结果</strong></div>
+      <div class="card-body">
+        {{ analysis|linebreaks }}
+      </div>
+    </div>
+  {% endif %}
+
+{% endblock content %}

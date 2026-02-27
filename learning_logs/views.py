@@ -1,3 +1,5 @@
+import os
+from openai import OpenAI
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -80,3 +82,56 @@ def edit_entry(request, entry_id):
             return redirect('learning_logs:topic', topic_id=topic.id)
     context = {'entry': entry, 'topic': topic, 'form': form}
     return render(request, 'learning_logs/edit_entry.html', context)
+
+@login_required
+def ai_analysis(request):
+    """用AI分析所有笔记，总结要点、生成复习题、发现知识关联。"""
+    topics = Topic.objects.filter(owner=request.user).order_by('date_added')
+    
+    # 整理所有笔记内容
+    all_notes = ""
+    for t in topics:
+        entries = t.entry_set.order_by('-date_added')
+        if entries:
+            all_notes += f"\n\n【主题：{t.text}】\n"
+            for e in entries:
+                all_notes += f"- {e.text}\n"
+    
+    analysis = None
+    error = None
+    
+    if request.method == 'POST':
+        if not all_notes.strip():
+            error = "你还没有任何笔记，请先添加一些笔记再进行分析。"
+        else:
+            try:
+                client = OpenAI(
+                    api_key=os.environ.get('DEEPSEEK_API_KEY'),
+                    base_url="https://api.deepseek.com"
+                )
+                prompt = f"""请分析以下学习笔记，并提供：
+
+1. 📌 各主题要点总结（每个主题用3-5句话概括核心内容）
+2. 🔗 知识点关联分析（找出不同主题之间的联系和共同概念）
+3. ❓ 复习题（针对重要知识点生成5-8道问题，帮助巩固记忆）
+
+笔记内容如下：
+{all_notes}
+
+请用中文回答，格式清晰易读。"""
+
+                response = client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=2000,
+                )
+                analysis = response.choices[0].message.content
+            except Exception as e:
+                error = f"AI分析出错：{str(e)}"
+    
+    context = {
+        'topics': topics,
+        'analysis': analysis,
+        'error': error,
+    }
+    return render(request, 'learning_logs/ai_analysis.html', context)
