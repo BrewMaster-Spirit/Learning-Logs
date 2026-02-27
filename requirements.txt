@@ -1,11 +1,15 @@
 asgiref==3.11.1
+beautifulsoup4==4.14.3
 dj-database-url==3.1.0
 Django==6.0.2
+django-bootstrap4==26.1
 django-heroku==0.3.1
 gunicorn==25.0.3
 packaging==26.0
 psycopg2==2.9.11
 psycopg2-binary==2.9.11
+soupsieve==2.8.3
 sqlparse==0.5.5
+typing_extensions==4.15.0
 tzdata==2025.3
 whitenoise==6.11.0
